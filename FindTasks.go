@@ -27,6 +27,9 @@ var marathonURL string
 var showIds bool
 var minimum int
 var retries int
+var oneLine bool
+var option string
+var prefix string
 
 func main() {
 	// Parse command line:
@@ -36,7 +39,13 @@ func main() {
 	flag.IntVar(&minimum, "minimum", 0,
 	            "repeat until this amount of tasks there")
 	flag.IntVar(&retries, "retries", 10, "number of retries")
+	flag.BoolVar(&oneLine, "oneline", false, "result on one line")
+	flag.StringVar(&option, "option", "", "option for one line")
+	flag.StringVar(&prefix, "prefix", "", "prefix for one line")
 	flag.Parse()
+	if option != "" || prefix != "" {
+		oneLine = true
+	}
 	args := flag.Args()
 	if len(args) != 1 {
 		fmt.Fprintln(os.Stderr, "Need an appId as command line argument")
@@ -65,21 +74,35 @@ func main() {
 					ports := task["ports"].([]interface{})
 					id := task["id"].(string)
 					slaveId := task["slaveId"].(string)
-					fmt.Printf("%s:", host)
-					for j := 0; j < len(ports); j++ {
-						if j > 0 {
-							fmt.Printf(",")
+					if !oneLine {
+						fmt.Printf("%s:", host)
+						for j := 0; j < len(ports); j++ {
+							if j > 0 {
+								fmt.Printf(",")
+							}
+							if j > 0 {
+								fmt.Printf(",%d", int(ports[j].(float64)))
+							} else {
+								fmt.Printf("%d", int(ports[j].(float64)))
+							}
 						}
-						if j > 0 {
-							fmt.Printf(",%d", int(ports[j].(float64)))
-						} else {
-							fmt.Printf("%d", int(ports[j].(float64)))
+						if showIds {
+							fmt.Printf(":%s:%s", id, slaveId)
+						}
+						fmt.Println()
+					} else {  // oneLine == true
+						if option != "" {
+							fmt.Printf(" %s", option)
+						}
+						fmt.Printf(" %s%s:", prefix, host)
+						for j := 0; j < len(ports); j++ {
+							if j > 0 {
+								fmt.Printf(",%d", int(ports[j].(float64)))
+							} else {
+								fmt.Printf("%d", int(ports[j].(float64)))
+							}
 						}
 					}
-					if showIds {
-						fmt.Printf(":%s:%s", id, slaveId)
-					}
-					fmt.Println()
 				}
 				return
 			}
