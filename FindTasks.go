@@ -38,7 +38,7 @@ func main() {
 	flag.BoolVar(&showIds, "ids", false, "show task and agent id")
 	flag.IntVar(&minimum, "minimum", 0,
 	            "repeat until this amount of tasks there")
-	flag.IntVar(&retries, "retries", 10, "number of retries")
+	flag.IntVar(&retries, "retries", 300, "number of retries")
 	flag.BoolVar(&oneLine, "oneline", false, "result on one line")
 	flag.StringVar(&option, "option", "", "option for one line")
 	flag.StringVar(&prefix, "prefix", "", "prefix for one line")
@@ -66,7 +66,11 @@ func main() {
 			respBody, _ := ioutil.ReadAll(resp.Body)
 			var result map[string]map[string]interface{}
 			json.Unmarshal(respBody, &result)
-			taskArray := result["app"]["tasks"].([]interface{})
+			app := result["app"]
+      var taskArray []interface{}
+			if app["tasks"] != nil {
+				taskArray = app["tasks"].([]interface{})
+			}
 			if len(taskArray) >= minimum {
 				for i := 0; i < len(taskArray); i++ {
 					task := taskArray[i].(map[string]interface{})
