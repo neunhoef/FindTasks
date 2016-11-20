@@ -64,6 +64,7 @@ func main() {
 		} else {
 			defer resp.Body.Close()
 			respBody, _ := ioutil.ReadAll(resp.Body)
+			fmt.Fprintln(os.Stderr, "Body read:\n%s\n", string(respBody))
 			var result map[string]map[string]interface{}
 			json.Unmarshal(respBody, &result)
 			app := result["app"]
