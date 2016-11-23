@@ -23,7 +23,7 @@ import (
 	"time"
 )
 
-var marathonURL string 
+var marathonURL string
 var showIds bool
 var minimum int
 var retries int
@@ -52,9 +52,12 @@ func main() {
 		return
 	}
 	appId := args[0]
+	if len(appId) == 0 || appId[0] != '/' {
+		appId = "/" + appId
+	}
 
 	for count := 1; count <= retries; count++ {
-		resp, err := http.Get(marathonURL + "/v2/apps/" + appId)
+		resp, err := http.Get(marathonURL + "/v2/apps" + appId)
 		if err != nil || resp.Body == nil || resp == nil{
 			fmt.Fprintln(os.Stderr, "Error querying Marathon:", err, resp,
 								   "retry", count, "out of", retries)
